@@ -1,191 +1,117 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Diario de Fe</title>
 <style>
-  :root {
-    --bg-app: #12100e;
-    --bg-paper: #1a1714;
-    --lines: #26221e;
-    --ink: #d4c5b0;
-    --ink-faint: #7a7061;
-    --accent: #a68453;
-    --accent-hover: #c49d66;
-    --danger: #8a3a33;
-    --shadow: 0 4px 15px rgba(0,0,0,0.5);
+  /* TEMAS */
+  :root[data-theme="dark"] {
+    --bg-app: #12100e; --bg-paper: #1a1714; --lines: #363028;
+    --ink: #f5f0e6; --ink-faint: #b3a895; --accent: #c9a46b;
+    --accent-hover: #e0bc82; --danger: #d95e53; --shadow: 0 4px 15px rgba(0,0,0,0.6);
+    --input-bg: #231f1a;
+  }
+  :root[data-theme="light"] {
+    --bg-app: #f4f1eb; --bg-paper: #ffffff; --lines: #e6dfd3;
+    --ink: #2b2621; --ink-faint: #7a7369; --accent: #8c6a38;
+    --accent-hover: #6e5229; --danger: #9c362d; --shadow: 0 2px 10px rgba(0,0,0,0.08);
+    --input-bg: #f9f8f6;
   }
 
   * { box-sizing: border-box; }
-  
-  html, body {
-    margin: 0; padding: 0; height: 100%;
-  }
-
+  html, body { margin: 0; padding: 0; height: 100%; transition: background 0.3s; }
   body {
-    background: var(--bg-app);
-    color: var(--ink);
-    font-family: "Georgia", serif;
-    padding-bottom: 90px;
-    -webkit-font-smoothing: antialiased;
+    background: var(--bg-app); color: var(--ink); font-family: "Georgia", serif;
+    padding-bottom: 90px; -webkit-font-smoothing: antialiased;
   }
+  .app { max-width: 500px; margin: 0 auto; padding: 0 12px; }
 
-  .app {
-    max-width: 500px;
-    margin: 0 auto;
-    padding: 0 12px;
-  }
-
+  /* HOJA ESTILO LIBRETA */
   .notebook-page {
     background-color: var(--bg-paper);
     background-image: repeating-linear-gradient(transparent, transparent 31px, var(--lines) 31px, var(--lines) 32px);
-    border-radius: 4px;
-    box-shadow: var(--shadow);
-    padding: 32px 20px 20px;
-    margin-top: 20px;
-    position: relative;
+    border-radius: 8px; box-shadow: var(--shadow); padding: 32px 20px 20px;
+    margin-top: 20px; position: relative; transition: background-color 0.3s, box-shadow 0.3s;
   }
-
   .notebook-page::before {
-    content: '';
-    position: absolute;
-    top: 0; bottom: 0; left: 40px;
-    width: 1px;
-    background: rgba(166, 132, 83, 0.3);
-    z-index: 1;
+    content: ''; position: absolute; top: 0; bottom: 0; left: 40px;
+    width: 1px; background: rgba(166, 132, 83, 0.4); z-index: 1;
   }
+  .notebook-content { position: relative; z-index: 2; padding-left: 30px; }
 
-  .notebook-content {
-    position: relative;
-    z-index: 2;
-    padding-left: 30px;
+  /* INPUTS */
+  input[type="text"], input[type="date"], textarea, select {
+    background: transparent; border: none; color: var(--ink);
+    font-family: "Georgia", serif; font-size: 18px; width: 100%; outline: none;
   }
-
-  input[type="text"], input[type="date"], textarea {
-    background: transparent;
-    border: none;
-    color: var(--ink);
-    font-family: "Georgia", serif;
-    font-size: 18px;
-    width: 100%;
-    outline: none;
-  }
+  input::placeholder, textarea::placeholder { color: var(--ink-faint); font-style: italic; opacity: 0.8; }
   
-  input::placeholder, textarea::placeholder {
-    color: var(--ink-faint);
-    font-style: italic;
-  }
+  .title-input { font-size: 22px !important; font-weight: bold; margin-bottom: 5px; border-bottom: 1px solid var(--lines) !important; padding-bottom: 5px; }
+  .date-input { font-size: 14px !important; color: var(--ink-faint) !important; margin-bottom: 15px; }
+  textarea.journal-body { line-height: 32px; min-height: 300px; resize: none; overflow: hidden; }
 
-  .title-input {
-    font-size: 22px !important;
-    font-weight: bold;
-    margin-bottom: 5px;
-    border-bottom: 1px solid var(--lines) !important;
-    padding-bottom: 5px;
+  /* CONTROLES BÍBLICOS */
+  .bible-controls {
+    display: flex; gap: 10px; margin-bottom: 15px; background: var(--bg-app);
+    padding: 10px; border-radius: 8px; border: 1px solid var(--lines);
   }
-
-  .date-input {
-    font-size: 14px !important;
-    color: var(--ink-faint) !important;
-    margin-bottom: 15px;
+  .bible-controls select {
+    background: var(--input-bg); padding: 8px; border-radius: 4px; font-size: 15px;
+    border: 1px solid var(--lines); cursor: pointer;
   }
-
-  textarea.journal-body {
-    line-height: 32px;
-    min-height: 300px;
-    resize: none;
-    overflow: hidden;
+  .toggle-group { display: flex; margin-bottom: 15px; border: 1px solid var(--accent); border-radius: 6px; overflow: hidden; }
+  .toggle-group button {
+    flex: 1; padding: 10px; background: transparent; border: none; color: var(--ink);
+    font-family: sans-serif; font-size: 13px; font-weight: bold; cursor: pointer;
   }
+  .toggle-group button.active { background: var(--accent); color: #fff; }
 
-  .detected-verses {
-    margin-top: 15px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
+  /* BOTONES Y ETIQUETAS */
+  .detected-verses { margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px; }
   .verse-chip {
-    background: var(--bg-app);
-    border: 1px solid var(--accent);
-    color: var(--accent);
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-family: sans-serif;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
+    background: var(--bg-app); border: 1px solid var(--accent); color: var(--accent);
+    padding: 6px 12px; border-radius: 20px; font-size: 13px; font-family: sans-serif;
+    display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s;
   }
-
-  .verse-chip:hover {
-    background: var(--accent);
-    color: var(--bg-app);
-  }
-
   .btn {
-    background: var(--accent);
-    color: var(--bg-app);
-    border: none;
-    padding: 12px 20px;
-    border-radius: 4px;
-    font-family: sans-serif;
-    font-weight: bold;
-    font-size: 14px;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 20px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    background: var(--accent); color: #fff; border: none; padding: 12px 20px;
+    border-radius: 6px; font-family: sans-serif; font-weight: bold; font-size: 14px;
+    cursor: pointer; width: 100%; margin-top: 20px; text-transform: uppercase; letter-spacing: 1px;
   }
+  .search-box {
+    background: var(--input-bg); border: 1px solid var(--lines); color: var(--ink);
+    padding: 12px 15px; border-radius: 8px; font-family: sans-serif; font-size: 15px;
+    margin-bottom: 15px; width: 100%; outline: none;
+  }
+
+  /* LISTAS Y RESULTADOS */
+  .bible-result-card, .bible-verse-line { border-bottom: 1px solid var(--lines); padding: 12px 0; }
+  .bible-verse-line { line-height: 1.6; font-size: 17px; }
+  .bible-ref { color: var(--accent); font-weight: bold; font-size: 16px; margin-bottom: 5px; }
+  .verse-num { color: var(--accent); font-weight: bold; font-size: 12px; margin-right: 5px; vertical-align: super; }
 
   nav.tabs {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: var(--bg-app);
-    display: flex;
-    border-top: 1px solid var(--lines);
-    z-index: 10;
+    position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-app);
+    display: flex; border-top: 1px solid var(--lines); z-index: 10;
   }
-
   nav.tabs button {
-    flex: 1;
-    background: none;
-    border: none;
-    padding: 15px;
-    color: var(--ink-faint);
-    font-size: 14px;
-    font-family: sans-serif;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    cursor: pointer;
-    transition: 0.3s;
+    flex: 1; background: none; border: none; padding: 15px 5px; color: var(--ink-faint);
+    font-size: 12px; font-family: sans-serif; text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
   }
-
-  nav.tabs button.active {
-    color: var(--accent);
-    border-top: 2px solid var(--accent);
-  }
-
+  nav.tabs button.active { color: var(--accent); border-top: 2px solid var(--accent); font-weight: bold; }
   .view { display: none; }
   .view.active { display: block; }
-
-  .saved-entry {
-    border-bottom: 1px solid var(--lines);
-    padding: 20px 0;
-  }
   
+  .saved-entry { border-bottom: 1px solid var(--lines); padding: 20px 0; }
   .saved-date { font-size: 12px; color: var(--accent); font-family: sans-serif; text-transform: uppercase; }
   .saved-title { font-size: 20px; font-weight: bold; margin: 5px 0 10px; }
   .saved-body { font-size: 16px; line-height: 1.6; color: var(--ink); white-space: pre-wrap; }
 
   .toast {
-    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-    background: var(--accent); color: var(--bg-app);
-    padding: 10px 20px; border-radius: 30px; font-family: sans-serif;
-    font-size: 14px; font-weight: bold; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100;
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--accent);
+    color: #fff; padding: 10px 20px; border-radius: 30px; font-family: sans-serif; font-size: 14px;
+    font-weight: bold; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100;
   }
   .toast.show { opacity: 1; }
 </style>
@@ -195,28 +121,67 @@
 <div class="toast" id="toast"></div>
 
 <div class="app">
+  <!-- VISTA: DIARIO -->
   <div class="view active" id="view-diario">
     <div class="notebook-page">
       <div class="notebook-content">
         <input type="text" id="entry-title" class="title-input" placeholder="Título de tu entrada...">
         <input type="date" id="entry-date" class="date-input">
-        
         <textarea id="entry-content" class="journal-body" placeholder="Escribe lo que Dios te habló hoy..." oninput="autoResize(this); detectVerses(this.value)"></textarea>
-        
         <div id="detected-verses-container" class="detected-verses"></div>
       </div>
     </div>
     <button class="btn" onclick="saveEntry()">Guardar en mi diario</button>
-
     <div style="margin-top: 40px;" id="entries-list"></div>
   </div>
 
+  <!-- VISTA: GUARDADOS -->
   <div class="view" id="view-versiculos">
     <div class="notebook-page">
       <div class="notebook-content">
-        <h3 style="margin-top:0; color: var(--accent);">Versículos Guardados</h3>
-        <p style="font-family: sans-serif; font-size: 13px; color: var(--ink-faint);">Los versículos detectados en tus entradas de diario aparecerán aquí automáticamente para tu meditación.</p>
+        <h3 style="margin-top:0; color: var(--accent);">Colección</h3>
         <div id="verses-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISTA: BIBLIA INTEGRADA -->
+  <div class="view" id="view-biblia">
+    <div class="notebook-page" style="padding-top: 20px;">
+      <div class="notebook-content" style="padding-left: 10px;">
+        
+        <!-- SELECTOR DE VERSIÓN ACTUALIZADO -->
+        <select id="bible-version-select" class="search-box" onchange="loadBibleVersion(this.value)">
+          <option value="RVR1960_vid_149.json">Reina Valera 1960 (RVR1960)</option>
+          <option value="NVI_vid_128.json">Nueva Versión Internacional (NVI)</option>
+          <option value="NTV_vid_127.json">Nueva Traducción Viviente (NTV)</option>
+          <option value="TLA_vid_176.json">Traducción en Lenguaje Actual (TLA)</option>
+          <option value="LBLA_vid_89.json">La Biblia de las Américas (LBLA)</option>
+          <option value="NBLA_vid_103.json">Nueva Biblia de las Américas (NBLA)</option>
+          <option value="DHH94I_vid_52.json">Dios Habla Hoy (DHH)</option>
+        </select>
+
+        <!-- TABS MODO BÍBLICO -->
+        <div class="toggle-group">
+          <button id="mode-read" class="active" onclick="setBibleMode('read')">LEER</button>
+          <button id="mode-search" onclick="setBibleMode('search')">BUSCAR</button>
+        </div>
+
+        <!-- MODO: LEER -->
+        <div id="bible-read-container">
+          <div class="bible-controls">
+            <select id="bible-book-select" onchange="populateChapters(); renderChapter();" style="flex: 2;"></select>
+            <select id="bible-chapter-select" onchange="renderChapter();" style="flex: 1;"></select>
+          </div>
+          <div id="bible-chapter-text" style="margin-top: 20px;"></div>
+        </div>
+
+        <!-- MODO: BUSCAR -->
+        <div id="bible-search-container" style="display: none;">
+          <input type="text" id="bible-search-input" class="search-box" placeholder="Ej: 'amor' o 'Juan 3:16'" oninput="searchBible()">
+          <div id="bible-results-container"></div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -224,25 +189,27 @@
 
 <nav class="tabs">
   <button class="active" id="tab-diario" onclick="switchTab('diario')">Diario</button>
-  <button id="tab-versiculos" onclick="switchTab('versiculos')">Versículos</button>
+  <button id="tab-versiculos" onclick="switchTab('versiculos')">Guardados</button>
+  <button id="tab-biblia" onclick="switchTab('biblia')">Biblia</button>
+  <button id="tab-theme" onclick="toggleTheme()">☀️/🌙</button>
 </nav>
 
 <script>
-let journal = [];
-let savedVerses = new Set();
-const verseRegex = /(?:[1-3]\s+)?[A-ZÁÉÍÓÚÑa-záéíóúñ]+\s+\d+:\d+(?:-\d+)?/g;
-
-function todayISO() {
-  return new Date().toISOString().slice(0,10);
+// --- TEMA ---
+function toggleTheme() {
+  const html = document.documentElement;
+  const newTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', newTheme);
+  localStorage.setItem('diario_theme', newTheme);
 }
+document.documentElement.setAttribute('data-theme', localStorage.getItem('diario_theme') || 'dark');
 
-document.getElementById('entry-date').value = todayISO();
-
+// --- TABS GLOBALES ---
 function switchTab(name) {
-  document.getElementById('view-diario').classList.toggle('active', name === 'diario');
-  document.getElementById('view-versiculos').classList.toggle('active', name === 'versiculos');
-  document.getElementById('tab-diario').classList.toggle('active', name === 'diario');
-  document.getElementById('tab-versiculos').classList.toggle('active', name === 'versiculos');
+  ['diario', 'versiculos', 'biblia'].forEach(tab => {
+    document.getElementById(`view-${tab}`).classList.toggle('active', name === tab);
+    document.getElementById(`tab-${tab}`).classList.toggle('active', name === tab);
+  });
   if(name === 'versiculos') renderVerses();
 }
 
@@ -253,95 +220,129 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2000);
 }
 
-function autoResize(textarea) {
-  textarea.style.height = 'auto';
-  textarea.style.height = (textarea.scrollHeight) + 'px';
-}
+// --- LÓGICA DIARIO ---
+let journal = [];
+let savedVerses = new Set();
+const verseRegex = /(?:[1-3]\s+)?[A-ZÁÉÍÓÚÑa-záéíóúñ]+\s+\d+:\d+(?:-\d+)?/g;
+document.getElementById('entry-date').value = new Date().toISOString().slice(0,10);
 
+function autoResize(textarea) {
+  textarea.style.height = 'auto'; textarea.style.height = textarea.scrollHeight + 'px';
+}
 function detectVerses(text) {
   const container = document.getElementById('detected-verses-container');
   container.innerHTML = '';
-  const matches = [...new Set(text.match(verseRegex))];
-  
-  matches.forEach(verse => {
+  [...new Set(text.match(verseRegex))].forEach(verse => {
     const chip = document.createElement('div');
     chip.className = 'verse-chip';
     chip.innerHTML = `<span>📖 ${verse}</span> <span style="font-size:10px;">(Guardar)</span>`;
-    chip.onclick = () => saveVerseDirectly(verse);
+    chip.onclick = () => { savedVerses.add(verse); showToast("Guardado."); }
     container.appendChild(chip);
   });
 }
-
-function saveVerseDirectly(verse) {
-  if(!savedVerses.has(verse)) {
-    savedVerses.add(verse);
-    showToast(`"${verse}" guardado en tu colección.`);
-  } else {
-    showToast('Este versículo ya está guardado.');
-  }
-}
-
 function saveEntry() {
   const title = document.getElementById('entry-title').value.trim();
   const date = document.getElementById('entry-date').value;
   const content = document.getElementById('entry-content').value.trim();
-
-  if(!content) {
-    showToast('La hoja está en blanco.');
-    return;
-  }
-
+  if(!content) return showToast('La hoja está vacía.');
+  
   const matches = content.match(verseRegex);
-  if(matches) {
-    matches.forEach(verse => savedVerses.add(verse));
-  }
+  if(matches) matches.forEach(v => savedVerses.add(v));
 
-  journal.unshift({
-    id: Date.now().toString(),
-    title: title || 'Sin título',
-    date,
-    content
-  });
-
+  journal.unshift({ id: Date.now().toString(), title: title || 'Sin título', date, content });
+  
   document.getElementById('entry-title').value = '';
   document.getElementById('entry-content').value = '';
-  document.getElementById('entry-date').value = todayISO();
-  document.getElementById('entry-content').style.height = '300px';
   document.getElementById('detected-verses-container').innerHTML = '';
-
   showToast('Entrada guardada.');
   renderEntries();
 }
-
 function renderEntries() {
-  const list = document.getElementById('entries-list');
-  if(journal.length === 0) {
-    list.innerHTML = '';
-    return;
-  }
-
-  list.innerHTML = journal.map(e => `
-    <div class="saved-entry">
-      <div class="saved-date">${e.date}</div>
-      <div class="saved-title">${e.title}</div>
-      <div class="saved-body">${e.content}</div>
-    </div>
+  document.getElementById('entries-list').innerHTML = journal.map(e => `
+    <div class="saved-entry"><div class="saved-date">${e.date}</div><div class="saved-title">${e.title}</div><div class="saved-body">${e.content}</div></div>
   `).join('');
 }
-
 function renderVerses() {
   const list = document.getElementById('verses-list');
-  if(savedVerses.size === 0) {
-    list.innerHTML = '<p style="color:var(--ink-faint); font-style:italic;">Aún no se han detectado versículos.</p>';
-    return;
-  }
+  if(savedVerses.size === 0) return list.innerHTML = '<p style="color:var(--ink-faint);">Sin versículos aún.</p>';
+  list.innerHTML = Array.from(savedVerses).map(v => `<div style="padding: 15px 0; border-bottom: 1px solid var(--lines);"><strong style="color:var(--accent); font-size: 18px;">${v}</strong></div>`).join('');
+}
 
-  list.innerHTML = Array.from(savedVerses).map(v => `
-    <div style="padding: 15px 0; border-bottom: 1px solid var(--lines);">
-      <strong style="color:var(--accent); font-size: 18px;">${v}</strong>
+// --- LÓGICA BIBLIA ---
+let bibleData = [];
+
+function setBibleMode(mode) {
+  document.getElementById('mode-read').classList.toggle('active', mode === 'read');
+  document.getElementById('mode-search').classList.toggle('active', mode === 'search');
+  document.getElementById('bible-read-container').style.display = mode === 'read' ? 'block' : 'none';
+  document.getElementById('bible-search-container').style.display = mode === 'search' ? 'block' : 'none';
+}
+
+function loadBibleVersion(filename) {
+  fetch(filename)
+    .then(res => res.json())
+    .then(data => {
+      bibleData = data;
+      populateBooks();
+      showToast(`Versión cargada.`);
+    })
+    .catch(() => {
+      bibleData = [];
+      document.getElementById('bible-chapter-text').innerHTML = `<p style="color:var(--danger); font-size:14px;">Falta el archivo <b>${filename}</b> en tu carpeta www.</p>`;
+    });
+}
+
+function populateBooks() {
+  if(!bibleData.length) return;
+  const books = [...new Set(bibleData.map(v => v.book))];
+  const bookSelect = document.getElementById('bible-book-select');
+  bookSelect.innerHTML = books.map(b => `<option value="${b}">${b}</option>`).join('');
+  populateChapters();
+}
+
+function populateChapters() {
+  if(!bibleData.length) return;
+  const selectedBook = document.getElementById('bible-book-select').value;
+  const chapters = [...new Set(bibleData.filter(v => v.book === selectedBook).map(v => v.chapter))];
+  const chapterSelect = document.getElementById('bible-chapter-select');
+  chapterSelect.innerHTML = chapters.map(c => `<option value="${c}">Cap. ${c}</option>`).join('');
+  renderChapter();
+}
+
+function renderChapter() {
+  if(!bibleData.length) return;
+  const book = document.getElementById('bible-book-select').value;
+  const chapter = parseInt(document.getElementById('bible-chapter-select').value);
+  const textContainer = document.getElementById('bible-chapter-text');
+  
+  const verses = bibleData.filter(v => v.book === book && v.chapter === chapter);
+  textContainer.innerHTML = verses.map(v => `
+    <div class="bible-verse-line"><span class="verse-num">${v.verse}</span> ${v.text}</div>
+  `).join('');
+}
+
+function searchBible() {
+  const query = document.getElementById('bible-search-input').value.toLowerCase().trim();
+  const container = document.getElementById('bible-results-container');
+  if(bibleData.length === 0) return container.innerHTML = `<p style="color:var(--danger); font-size:14px;">Carga una biblia primero.</p>`;
+  if(query.length < 3) return container.innerHTML = '<p style="color:var(--ink-faint);">Escribe para buscar...</p>';
+
+  const results = bibleData.filter(v => 
+    (v.book + " " + v.chapter + ":" + v.verse).toLowerCase().includes(query) || v.text.toLowerCase().includes(query)
+  ).slice(0, 20);
+
+  if(results.length === 0) return container.innerHTML = '<p style="color:var(--ink-faint);">Sin resultados.</p>';
+
+  container.innerHTML = results.map(v => `
+    <div class="bible-result-card">
+      <div class="bible-ref">${v.book} ${v.chapter}:${v.verse}</div>
+      <div class="bible-text">${v.text}</div>
     </div>
   `).join('');
 }
+
+// Iniciar cargando la primera opción al abrir la app
+window.onload = () => loadBibleVersion(document.getElementById('bible-version-select').value);
 </script>
 </body>
 </html>
