@@ -150,7 +150,6 @@
     <div class="notebook-page" style="padding-top: 20px;">
       <div class="notebook-content" style="padding-left: 10px;">
         
-        <!-- SELECTOR DE VERSIÓN ACTUALIZADO -->
         <select id="bible-version-select" class="search-box" onchange="loadBibleVersion(this.value)">
           <option value="RVR1960_vid_149.json">Reina Valera 1960 (RVR1960)</option>
           <option value="NVI_vid_128.json">Nueva Versión Internacional (NVI)</option>
@@ -161,13 +160,11 @@
           <option value="DHH94I_vid_52.json">Dios Habla Hoy (DHH)</option>
         </select>
 
-        <!-- TABS MODO BÍBLICO -->
         <div class="toggle-group">
           <button id="mode-read" class="active" onclick="setBibleMode('read')">LEER</button>
           <button id="mode-search" onclick="setBibleMode('search')">BUSCAR</button>
         </div>
 
-        <!-- MODO: LEER -->
         <div id="bible-read-container">
           <div class="bible-controls">
             <select id="bible-book-select" onchange="populateChapters(); renderChapter();" style="flex: 2;"></select>
@@ -176,7 +173,6 @@
           <div id="bible-chapter-text" style="margin-top: 20px;"></div>
         </div>
 
-        <!-- MODO: BUSCAR -->
         <div id="bible-search-container" style="display: none;">
           <input type="text" id="bible-search-input" class="search-box" placeholder="Ej: 'amor' o 'Juan 3:16'" oninput="searchBible()">
           <div id="bible-results-container"></div>
@@ -279,16 +275,72 @@ function setBibleMode(mode) {
 }
 
 function loadBibleVersion(filename) {
+  showToast("Procesando base de datos...");
+  document.getElementById('bible-book-select').innerHTML = '';
+  document.getElementById('bible-chapter-select').innerHTML = '';
+  document.getElementById('bible-chapter-text').innerHTML = '<p style="color:var(--ink-faint);">Cargando...</p>';
+
   fetch(filename)
     .then(res => res.json())
     .then(data => {
-      bibleData = data;
+      let flatBible = [];
+      
+      // MOTOR DE EXTRACCIÓN PARA EL NUEVO FORMATO
+      if (data.books) {
+        data.books.forEach(b => {
+          b.chapters.forEach(c => {
+            // Ignorar introducciones de libros
+            if (c.is_chapter === false) return;
+
+            // Extraer número de capítulo
+            let chapNumMatch = c.current && c.current.human ? c.current.human.match(/\d+$/) : null;
+            let chapNum = chapNumMatch ? parseInt(chapNumMatch[0]) : 1;
+
+            if (c.chapter_html) {
+              let html = c.chapter_html;
+              
+              // Inyectar un separador antes de cada etiqueta de versículo
+              html = html.replace(/<[^>]+class="[^"]*\b(v|verse)\b[^"]*"[^>]*>(.*?)<\/[^>]+>/gi, '|||V:$2|||');
+              
+              // Limpiar todo el HTML restante usando el navegador
+              let temp = document.createElement('div');
+              temp.innerHTML = html;
+              let plain = temp.textContent || temp.innerText || "";
+              
+              // Separar los versículos usando el delimitador inyectado
+              let parts = plain.split('|||V:');
+              if (parts.length > 1) {
+                for(let i = 1; i < parts.length; i++) {
+                  let splitIdx = parts[i].indexOf('|||');
+                  if(splitIdx !== -1) {
+                    let vNum = parts[i].substring(0, splitIdx).trim();
+                    let vText = parts[i].substring(splitIdx + 3).replace(/\s+/g, ' ').trim();
+                    if(vText) {
+                      flatBible.push({ book: b.name, chapter: chapNum, verse: vNum, text: vText });
+                    }
+                  }
+                }
+              } else {
+                // Si no se detectan versículos, guardar el capítulo completo como versículo 1
+                let vText = plain.replace(/\s+/g, ' ').trim();
+                if(vText) {
+                  flatBible.push({ book: b.name, chapter: chapNum, verse: "1", text: vText });
+                }
+              }
+            }
+          });
+        });
+      } else {
+        flatBible = data; // Fallback por si la estructura ya era plana
+      }
+
+      bibleData = flatBible;
       populateBooks();
-      showToast(`Versión cargada.`);
+      showToast(`¡Versión lista!`);
     })
     .catch(() => {
       bibleData = [];
-      document.getElementById('bible-chapter-text').innerHTML = `<p style="color:var(--danger); font-size:14px;">Falta el archivo <b>${filename}</b> en tu carpeta www.</p>`;
+      document.getElementById('bible-chapter-text').innerHTML = `<p style="color:var(--danger); font-size:14px;">Falta el archivo <b>${filename}</b>.</p>`;
     });
 }
 
@@ -304,6 +356,10 @@ function populateChapters() {
   if(!bibleData.length) return;
   const selectedBook = document.getElementById('bible-book-select').value;
   const chapters = [...new Set(bibleData.filter(v => v.book === selectedBook).map(v => v.chapter))];
+  
+  // Ordenar capítulos numéricamente para evitar desorden
+  chapters.sort((a, b) => a - b);
+  
   const chapterSelect = document.getElementById('bible-chapter-select');
   chapterSelect.innerHTML = chapters.map(c => `<option value="${c}">Cap. ${c}</option>`).join('');
   renderChapter();
@@ -341,7 +397,6 @@ function searchBible() {
   `).join('');
 }
 
-// Iniciar cargando la primera opción al abrir la app
 window.onload = () => loadBibleVersion(document.getElementById('bible-version-select').value);
 </script>
 </body>
