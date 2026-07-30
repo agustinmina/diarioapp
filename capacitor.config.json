@@ -1,0 +1,6 @@
+{
+  "appId": "com.lvc.diario",
+  "appName": "Diario de Fe",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
