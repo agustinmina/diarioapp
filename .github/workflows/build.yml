@@ -16,7 +16,7 @@ jobs:
       - name: Descomprimir biblias
         run: |
           cd www
-          unzip -o \*.zip || true
+          for f in *.zip; do unzip -j -o "$f" || true; done
           
       - run: npx cap add android
       - run: npx cap sync android
